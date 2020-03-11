@@ -22,16 +22,22 @@ def ipv4_address(private_network_allowed: bool = True):
     """
     get a random ip address
     """
-    ip_address = ".".join([str(random.randint(0, 255)) for _ in range(4)])
+    ip_address_parts = [random.randint(0, 255) for _ in range(4)]
 
     if private_network_allowed:
-        return ip_address
+        return ".".join([str(part) for part in ip_address_parts])
 
     elif not private_network_allowed:
-        if ip_address.startswith("10."):
+        # 10.0.0.0/8
+        if ip_address_parts[0] == 10:
             return ipv4_address(private_network_allowed=False)
+
+        # 100.64.0.0/10
+        elif ip_address_parts[0] == 100 and 64 <= ip_address_parts[1] <= 127:
+            return ipv4_address(private_network_allowed=False)
+
         else:
-            return ip_address
+            return ".".join([str(part) for part in ip_address_parts])
 
 
 

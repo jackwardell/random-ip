@@ -30,13 +30,13 @@ def test_ipv4_address():
     assert ip_address
     # 10.0.0.0/8
     assert not ip_address.startswith("10.")
-    # # 100.64.0.0/10
-    # for i in range(64, 128):
-    #     assert not ip_address.startswith(f"100.{i}")
+    # 100.64.0.0/10
+    for i in range(64, 128):
+        assert not ip_address.startswith(f"100.{i}")
 
 
-def test_ipv4_address_1000_times():
-    for i in range(1000):
+def test_ipv4_address_10000_times():
+    for i in range(10000):
         test_ipv4_address()
 
 
