@@ -38,6 +38,8 @@ def test_ipv4_address():
         assert not ip_address.startswith(f"172.{i}.")
     # 192.0.0.0/24
     assert not ip_address.startswith("192.0.0.")
+    # 192.168.0.0/16
+    assert not ip_address.startswith("192.168.")
 
 
 def test_ipv4_address_100000_times():

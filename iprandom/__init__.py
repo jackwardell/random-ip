@@ -41,8 +41,12 @@ def ipv4_address(private_network_allowed: bool = True):
         elif ip_address_parts[0] == 172 and 16 <= ip_address_parts[1] <= 31:
             return ipv4_address(private_network_allowed=False)
 
-        # # 192.0.0.0/24 = 192.0.0.0–192.0.0.255
+        # 192.0.0.0/24 = 192.0.0.0–192.0.0.255
         elif ip_address_parts[0] == 192 and ip_address_parts[1:3] == [0, 0]:
+            return ipv4_address(private_network_allowed=False)
+
+        # 192.168.0.0/16 = 192.168.0.0–192.168.255.255
+        elif ip_address_parts[0:2] == [192, 168]:
             return ipv4_address(private_network_allowed=False)
 
         else:
