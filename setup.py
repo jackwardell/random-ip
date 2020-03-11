@@ -11,8 +11,9 @@ setup(
     version="0.1.0",
     author="Jack Wardell",
     author_email="jackwardell@me.com",
+    url='http://github.com/jackwardell/iprandom',
     description="library for generating random ip addresses",
-    packages=find_packages(),
+    packages=['iprandom'],
     python_requires=">=3.6",
     # install_requires=requirements,
 )
