@@ -145,11 +145,25 @@ def test_ipv4_address_host_not_allowed():
 def test_ipv4_address_subnet_not_allowed():
     """
     subnet ip cidr
-    169.254.0.0/16 = 169.254.0.0–169.254.255.255
+    169.254.0.0/16      =  169.254.0.0–169.254.255.255
+    255.255.255.255/32  =  255.255.255.255
     """
     ip_address = ipv4_address(subnet_allowed=False)
     assert ip_address
     assert not ip_address.startswith("169.254.")
+    assert not ip_address == "255.255.255.255"
+
+
+# def test_ipv4_address_Documentation_not_allowed():
+#     """
+#     subnet ip cidr
+#     169.254.0.0/16      =  169.254.0.0–169.254.255.255
+#     255.255.255.255/32  =  255.255.255.255
+#     """
+#     ip_address = ipv4_address(subnet_allowed=False)
+#     assert ip_address
+#     assert not ip_address.startswith("169.254.")
+#     assert not ip_address == "255.255.255.255"
 
 
 def test_ipv4_address_100000_times():

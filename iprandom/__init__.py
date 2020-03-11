@@ -25,14 +25,20 @@ special_address_blocks = {
 # 127.0.0.0/8 = 127.0.0.0–127.255.255.255
 
 # subnet ip cidr
-# 169.254.0.0/16 = 169.254.0.0–169.254.255.255
+# 169.254.0.0/16      =  69.254.0.0–169.254.255.255
+# 255.255.255.255/32  =  255.255.255.255
+
+# documentation ip cidr
+# 192.0.2.0/24	  =  192.0.2.0–192.0.2.255
+# 198.51.100.0/24 =  198.51.100.0–198.51.100.255
+# 203.0.113.0/24  =  203.0.113.0–203.0.113.255
 
 
 def ipv4_address(
-    private_network_allowed: bool = True,
-    software_allowed: bool = True,
-    host_allowed: bool = True,
-    subnet_allowed: bool = True,
+        private_network_allowed: bool = True,
+        software_allowed: bool = True,
+        host_allowed: bool = True,
+        subnet_allowed: bool = True,
 ):
     """
     get a random ip address
@@ -81,6 +87,8 @@ def ipv4_address(
     if not subnet_allowed:
         # 169.254.0.0/16 = 169.254.0.0–169.254.255.255
         if ip_address_parts[0:2] == [169, 254]:
+            return ipv4_address(subnet_allowed=False)
+        elif ip_address_parts == [255, 255, 255, 255]:
             return ipv4_address(subnet_allowed=False)
         else:
             return _construct_ip_address()
