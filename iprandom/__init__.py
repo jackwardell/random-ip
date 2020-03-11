@@ -4,10 +4,10 @@ import ipaddress
 # special address blocks
 # from wikipedia, https://en.wikipedia.org/wiki/Reserved_IP_addresses
 
-special_address_blocks = {
-    "0.0.0.0/8": ((0, 0, 0, 0), (0, 255, 255, 255)),
-    "10.0.0.0/8": ((10, 0, 0, 0), (10, 255, 255, 255)),
-}
+# special_address_blocks = {
+#     "0.0.0.0/8": ((0, 0, 0, 0), (0, 255, 255, 255)),
+#     "10.0.0.0/8": ((10, 0, 0, 0), (10, 255, 255, 255)),
+# }
 
 
 # private network ip cidr
@@ -35,15 +35,17 @@ special_address_blocks = {
 
 
 def ipv4_address(
-        private_network_allowed: bool = True,
-        software_allowed: bool = True,
-        host_allowed: bool = True,
-        subnet_allowed: bool = True,
+    private_network_allowed: bool = True,
+    software_allowed: bool = True,
+    host_allowed: bool = True,
+    subnet_allowed: bool = True,
+    documentation_allowed: bool = True,
 ):
     """
     get a random ip address
     """
-    ip_address_parts = [random.randint(0, 255) for _ in range(4)]
+    # ip_address_parts = [random.randint(0, 255) for _ in range(4)]
+    ip_address_parts = [random.randint(191, 204), random.randint(0, 52), random.randint(1, 114), random.randint(0, 255)]
 
     def _construct_ip_address():
         return ".".join([str(part) for part in ip_address_parts])
@@ -88,8 +90,22 @@ def ipv4_address(
         # 169.254.0.0/16 = 169.254.0.0–169.254.255.255
         if ip_address_parts[0:2] == [169, 254]:
             return ipv4_address(subnet_allowed=False)
+        # 255.255.255.255/32 = 255.255.255.255
         elif ip_address_parts == [255, 255, 255, 255]:
             return ipv4_address(subnet_allowed=False)
+        else:
+            return _construct_ip_address()
+
+    if not documentation_allowed:
+        # 192.0.2.0/24 = 192.0.2.0–192.0.2.255
+        if ip_address_parts[0:3] == [192, 0, 2]:
+            return ipv4_address(documentation_allowed=False)
+        # 198.51.100.0/24 = 198.51.100.0–198.51.100.255
+        if ip_address_parts[0:3] == [198, 51, 100]:
+            return ipv4_address(documentation_allowed=False)
+        # 203.0.113.0/24 = 203.0.113.0–203.0.113.255
+        if ip_address_parts[0:3] == [203, 0, 113]:
+            return ipv4_address(documentation_allowed=False)
         else:
             return _construct_ip_address()
 

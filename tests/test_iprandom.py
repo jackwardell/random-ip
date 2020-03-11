@@ -150,29 +150,36 @@ def test_ipv4_address_subnet_not_allowed():
     """
     ip_address = ipv4_address(subnet_allowed=False)
     assert ip_address
+    # 169.254.0.0/16
     assert not ip_address.startswith("169.254.")
+    # 255.255.255.255/32
     assert not ip_address == "255.255.255.255"
 
 
-# def test_ipv4_address_Documentation_not_allowed():
-#     """
-#     subnet ip cidr
-#     169.254.0.0/16      =  169.254.0.0–169.254.255.255
-#     255.255.255.255/32  =  255.255.255.255
-#     """
-#     ip_address = ipv4_address(subnet_allowed=False)
-#     assert ip_address
-#     assert not ip_address.startswith("169.254.")
-#     assert not ip_address == "255.255.255.255"
+def test_ipv4_address_documentation_not_allowed():
+    """
+    192.0.2.0/24     =  192.0.2.0–192.0.2.255
+    198.51.100.0/24  =  198.51.100.0–198.51.100.255
+    203.0.113.0/24   =  203.0.113.0–203.0.113.255
+    """
+    ip_address = ipv4_address(documentation_allowed=False)
+    assert ip_address
+    # 192.0.2.0/24
+    assert not ip_address.startswith("192.0.2.")
+    # 198.51.100.0/24
+    assert not ip_address.startswith("198.51.100.")
+    # 203.0.113.0/24
+    assert not ip_address.startswith("203.0.113.")
 
 
 def test_ipv4_address_100000_times():
-    for i in range(100000):
+    for i in range(1000000):
         test_ipv4_address()
         test_ipv4_address_private_network_not_allowed()
         test_ipv4_address_software_not_allowed()
         test_ipv4_address_host_not_allowed()
         test_ipv4_address_subnet_not_allowed()
+        test_ipv4_address_documentation_not_allowed()
 
 
 def test_ipv6_address():
