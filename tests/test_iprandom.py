@@ -125,7 +125,7 @@ def test_ipv4_address_private_network_not_allowed():
 def test_ipv4_address_software_not_allowed():
     """
     software ip cidr
-    0.0.0.0/8
+    0.0.0.0/8   =  0.0.0.0–0.255.255.255
     """
     ip_address = ipv4_address(software_allowed=False)
     assert ip_address
@@ -135,7 +135,7 @@ def test_ipv4_address_software_not_allowed():
 def test_ipv4_address_host_not_allowed():
     """
     software ip cidr
-    0.0.0.0/8
+    127.0.0.0/8   =  127.0.0.0–127.255.255.255
     """
     ip_address = ipv4_address(host_allowed=False)
     assert ip_address
@@ -147,6 +147,7 @@ def test_ipv4_address_100000_times():
         test_ipv4_address()
         test_ipv4_address_private_network_not_allowed()
         test_ipv4_address_software_not_allowed()
+        test_ipv4_address_host_not_allowed()
 
 
 def test_ipv6_address():
