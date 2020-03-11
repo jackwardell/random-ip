@@ -172,6 +172,18 @@ def test_ipv4_address_documentation_not_allowed():
     assert not ip_address.startswith("203.0.113.")
 
 
+def test_ipv4_address_reserved_internet_not_allowed():
+    """
+    192.88.99.0/24  =  192.88.99.0–192.88.99.255
+    224.0.0.0/4     =  224.0.0.0–239.255.255.255
+    240.0.0.0/4	  =  240.0.0.0–255.255.255.254
+    """
+    ip_address = ipv4_address(reserved_internet_allowed=False)
+    assert ip_address
+    # 192.88.99.0/24
+    assert not ip_address.startswith("192.88.99.")
+
+
 def test_ipv4_address_100000_times():
     for i in range(1000000):
         test_ipv4_address()
@@ -180,6 +192,7 @@ def test_ipv4_address_100000_times():
         test_ipv4_address_host_not_allowed()
         test_ipv4_address_subnet_not_allowed()
         test_ipv4_address_documentation_not_allowed()
+        test_ipv4_address_reserved_internet_not_allowed()
 
 
 def test_ipv6_address():
