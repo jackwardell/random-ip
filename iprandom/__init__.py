@@ -32,6 +32,7 @@ def ipv4_address(
     private_network_allowed: bool = True,
     software_allowed: bool = True,
     host_allowed: bool = True,
+    subnet_allowed: bool = True,
 ):
     """
     get a random ip address
@@ -52,7 +53,7 @@ def ipv4_address(
         elif ip_address_parts[0] == 172 and 16 <= ip_address_parts[1] <= 31:
             return ipv4_address(private_network_allowed=False)
         # 192.0.0.0/24 = 192.0.0.0–192.0.0.255
-        elif ip_address_parts[0] == 192 and ip_address_parts[1:3] == [0, 0]:
+        elif ip_address_parts[0:3] == [192, 0, 0]:
             return ipv4_address(private_network_allowed=False)
         # 192.168.0.0/16 = 192.168.0.0–192.168.255.255
         elif ip_address_parts[0:2] == [192, 168]:
@@ -74,6 +75,13 @@ def ipv4_address(
         # 127.0.0.0/8 = 127.0.0.0–127.255.255.255
         if ip_address_parts[0] == 127:
             return ipv4_address(host_allowed=False)
+        else:
+            return _construct_ip_address()
+
+    if not subnet_allowed:
+        # 169.254.0.0/16 = 169.254.0.0–169.254.255.255
+        if ip_address_parts[0:2] == [169, 254]:
+            return ipv4_address(subnet_allowed=False)
         else:
             return _construct_ip_address()
 
