@@ -5,12 +5,12 @@ from ipaddress import IPv4Address
 
 
 # private network ip cidr
-# 10.0.0.0/8
-# 100.64.0.0/10
-# 172.16.0.0/12
-# 192.0.0.0/24
-# 192.168.0.0/16
-# 198.18.0.0/15
+# 10.0.0.0/8      =  10.0.0.0–10.255.255.255
+# 100.64.0.0/10   =  100.64.0.0–100.127.255.255
+# 172.16.0.0/12   =  172.16.0.0–172.31.255.255
+# 192.0.0.0/24    =  192.0.0.0–192.0.0.255
+# 192.168.0.0/16  =  192.168.0.0–192.168.255.255
+# 198.18.0.0/15   =  198.18.0.0–198.19.255.255
 
 
 def test_ipv4_address():
@@ -32,7 +32,9 @@ def test_ipv4_address():
     assert not ip_address.startswith("10.")
     # 100.64.0.0/10
     for i in range(64, 128):
-        assert not ip_address.startswith(f"100.{i}")
+        assert not ip_address.startswith(f"100.{i}.")
+    for i in range(16, 32):
+        assert not ip_address.startswith(f"172.{i}.")
 
 
 def test_ipv4_address_10000_times():
