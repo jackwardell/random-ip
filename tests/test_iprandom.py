@@ -33,12 +33,15 @@ def test_ipv4_address():
     # 100.64.0.0/10
     for i in range(64, 128):
         assert not ip_address.startswith(f"100.{i}.")
+    # 172.16.0.0/12
     for i in range(16, 32):
         assert not ip_address.startswith(f"172.{i}.")
+    # 192.0.0.0/24
+    assert not ip_address.startswith("192.0.0.")
 
 
-def test_ipv4_address_10000_times():
-    for i in range(10000):
+def test_ipv4_address_100000_times():
+    for i in range(1000000):
         test_ipv4_address()
 
 

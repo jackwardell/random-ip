@@ -6,7 +6,7 @@ import ipaddress
 
 special_address_blocks = {
     "0.0.0.0/8": ((0, 0, 0, 0), (0, 255, 255, 255)),
-    "10.0.0.0/8": ((10, 0, 0, 0), (10, 255, 255, 255))
+    "10.0.0.0/8": ((10, 0, 0, 0), (10, 255, 255, 255)),
 }
 
 
@@ -42,7 +42,8 @@ def ipv4_address(private_network_allowed: bool = True):
             return ipv4_address(private_network_allowed=False)
 
         # # 192.0.0.0/24 = 192.0.0.0–192.0.0.255
-        # elif
+        elif ip_address_parts[0] == 192 and ip_address_parts[1:3] == [0, 0]:
+            return ipv4_address(private_network_allowed=False)
 
         else:
             return ".".join([str(part) for part in ip_address_parts])
