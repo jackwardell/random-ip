@@ -16,31 +16,52 @@ class IPv4AddressRange:
         check_is_ipv4_address(start_ip)
         self.start_ip = start_ip
         self.start_ip_parts = tuple(int(i) for i in start_ip.split("."))
+        (
+            self.start_ip_a,
+            self.start_ip_b,
+            self.start_ip_c,
+            self.start_ip_d,
+        ) = self.start_ip_parts
 
         check_is_ipv4_address(end_ip)
         self.end_ip = end_ip
         self.end_ip_parts = tuple(int(i) for i in end_ip.split("."))
+        (
+            self.end_ip_a,
+            self.end_ip_b,
+            self.end_ip_c,
+            self.end_ip_d,
+        ) = self.end_ip_parts
+        self.check_end_ip_is_greater_than_start_ip()
 
+        self.ip_a_range = range(self.start_ip_a, self.end_ip_a + 1)
 
-def test_ip_v4_address_range():
-    start_ip, end_ip = "0.0.0.0", "255.255.255.255"
-    ip_address_range = IPv4AddressRange(start_ip, end_ip)
-    assert ip_address_range
-    assert ip_address_range.start_ip == start_ip
-    assert ip_address_range.start_ip_parts == tuple(int(i) for i in start_ip.split("."))
-    assert ip_address_range.end_ip == end_ip
-    assert ip_address_range.end_ip_parts == tuple(int(i) for i in end_ip.split("."))
+    def check_end_ip_is_greater_than_start_ip(self):
+        assert (
+            self.start_ip != self.end_ip
+        ), "start and end ips match - ip ranges should not match"
+        assert (
+            self.start_ip_a <= self.end_ip_a
+        ), "end ip must be greater than or equal to the start ip"
+        if self.start_ip_a == self.end_ip_a:
+            assert (
+                self.start_ip_b <= self.end_ip_b
+            ), "end ip must be greater than or equal to the start ip"
+            if self.start_ip_b == self.end_ip_b:
+                assert (
+                    self.start_ip_c <= self.end_ip_c
+                ), "end ip must be greater than or equal to the start ip"
+                if self.start_ip_c == self.start_ip_b:
+                    assert (
+                        self.start_ip_d < self.end_ip_d
+                    ), "end ip must be greater than or equal to the start ip"
 
-
-
-test_ip_v4_address_range()
-
-# class IPv4Generator:
-#     def __init__(self, start_ip="0.0.0.0", end_ip="255.255.255.255"):
-#         check_is_ipv4_address(start_ip)
-#         self.start_ip = start_ip
-#         self.start_ip_parts = tuple(int(i) for i in start_ip.split("."))
-#
-#         check_is_ipv4_address(end_ip)
-#         self.end_ip = end_ip
-#         self.end_ip_parts = tuple(int(i) for i in end_ip.split("."))
+            # class IPv4Generator:
+            #     def __init__(self, start_ip="0.0.0.0", end_ip="255.255.255.255"):
+            #         check_is_ipv4_address(start_ip)
+            #         self.start_ip = start_ip
+            #         self.start_ip_parts = tuple(int(i) for i in start_ip.split("."))
+            #
+            #         check_is_ipv4_address(end_ip)
+            #         self.end_ip = end_ip
+            #         self.end_ip_parts = tuple(int(i) for i in end_ip.split("."))
