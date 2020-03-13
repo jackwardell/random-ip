@@ -30,6 +30,11 @@ class IPv4AddressRange:
         _ip_address = IPv4Address(ip_address)
         return int(_ip_address) in self.ip_range
 
+    def __eq__(self, ip_address_range):
+        if not isinstance(ip_address_range, IPv4AddressRange):
+            return False
+        else:
+            return self.ip_range == ip_address_range.ip_range
 
 # def _check_end_ip_is_greater_than_start_ip(self):
 #     end_must_be_greater = "end ip must be greater than or equal to the start ip"
