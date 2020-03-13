@@ -51,12 +51,14 @@ def ipv4_address(
     """
     get a random ip address
     """
-    # ip_address_parts = [random.randint(0, 255) for _ in range(4)]
-    ip_address_parts = [
-        random.randint(191, 193),
-        88, 99,
-        random.randint(0, 255),
-    ]
+    ip_address_parts = [random.randint(0, 255) for _ in range(4)]
+
+    # ip_address_parts = [
+    #     random.randint(191, 193),
+    #     88, 99,
+    #     random.randint(0, 255),
+    # ]
+    ip_address_parts = [255, 244, 34, 45]
 
     def _construct_ip_address():
         return ".".join([str(part) for part in ip_address_parts])
@@ -112,23 +114,48 @@ def ipv4_address(
         if ip_address_parts[0:3] == [192, 0, 2]:
             return ipv4_address(documentation_allowed=False)
         # 198.51.100.0/24 = 198.51.100.0–198.51.100.255
-        if ip_address_parts[0:3] == [198, 51, 100]:
+        elif ip_address_parts[0:3] == [198, 51, 100]:
             return ipv4_address(documentation_allowed=False)
         # 203.0.113.0/24 = 203.0.113.0–203.0.113.255
-        if ip_address_parts[0:3] == [203, 0, 113]:
+        elif ip_address_parts[0:3] == [203, 0, 113]:
             return ipv4_address(documentation_allowed=False)
         else:
             return _construct_ip_address()
 
     if not reserved_internet_allowed:
-        # 192.88.99.0/24  =  192.88.99.0–192.88.99.255
+        # 192.88.99.0/24 = 192.88.99.0–192.88.99.255
         if ip_address_parts[0:3] == [192, 88, 99]:
+            return ipv4_address(reserved_internet_allowed=False)
+        # 224.0.0.0/4 = 224.0.0.0–239.255.255.255
+        elif 224 <= ip_address_parts[0] <= 239:
+            return ipv4_address(reserved_internet_allowed=False)
+        # 240.0.0.0/4 = 240.0.0.0–255.255.255.254
+        elif 240 <= ip_address_parts[0] <= 254:
+            return ipv4_address(reserved_internet_allowed=False)
+        elif ip_address_parts[0] == 255 and ip_address_parts[-1] == 255:
             return ipv4_address(reserved_internet_allowed=False)
         else:
             return _construct_ip_address()
 
     else:
         return _construct_ip_address()
+
+
+
+
+
+
+# class IPv4AddressGenerator:
+#     def __init__(self):
+#         pass
+#
+#     def __call__(self, *args, **kwargs):
+#         ip_address_parts = [random.randint(0, 255) for _ in range(4)]
+#         return self.constructor(ip_address_parts)
+#
+#     @staticmethod
+#     def constructor(ip_address_parts):
+#         return ".".join([str(part) for part in ip_address_parts])
 
 
 def ipv6_address():
