@@ -54,3 +54,8 @@ def test_ip_v4_address_range():
     ip_address_range = IPv4AddressRange("127.0.0.0", "255.255.255.0")
     assert ip_address_range != range(2130706432, 4294967040)
     assert ip_address_range == IPv4AddressRange("127.0.0.0", "255.255.255.0")
+
+    assert repr(ip_address_range) == (
+        "IPv4AddressRange(start_ip_address=127.0.0.0, end_ip_address=255.255.255.0)"
+    )
+    assert str(ip_address_range) == "127.0.0.0 - 255.255.255.0"
