@@ -13,13 +13,13 @@ def test_ip_v4_address_range():
     assert ip_address_range.end_ip == end_ip
     assert ip_address_range.ip_range == range(int(start_ipv4), int(end_ipv4) + 1)
 
-    with raises(AddressValueError):
+    with raises(ValueError):
         IPv4AddressRange("asgdjka", "asdkas")
 
-    with raises(AddressValueError):
+    with raises(ValueError):
         IPv4AddressRange("234234.4.324.2", "23423.423.4.2")
 
-    with raises(AddressValueError):
+    with raises(ValueError):
         IPv4AddressRange("0.0.0", "155.6.6")
 
     start_ip, end_ip = "255.255.255.255", "0.0.0.0"
@@ -80,3 +80,11 @@ def test_ip_v4_address_range():
 
     ip_address_range = IPv4AddressRange("0.0.0.0", "255.255.255.255")
     assert ip_address_range.to_cidr() == ["0.0.0.0/0"]
+
+    start_ip, end_ip = IPv4Address("0.0.0.0"), IPv4Address("255.255.255.255")
+    ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    assert ip_address_range.start_ip == start_ip.exploded
+    assert ip_address_range.end_ip == end_ip.exploded
+    assert ip_address_range._start_ip == start_ip
+    assert ip_address_range._end_ip == end_ip

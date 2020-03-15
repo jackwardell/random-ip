@@ -1,17 +1,22 @@
+from ipaddress import AddressValueError
 from ipaddress import IPv4Address
+from ipaddress import NetmaskValueError
 from ipaddress import summarize_address_range
 
 
 class IPv4AddressRange:
     def __init__(self, start_ip, end_ip):
-        self.start_ip = start_ip
-        self._start_ip = IPv4Address(start_ip)
+        try:
+            self._start_ip = IPv4Address(start_ip)
+            self._end_ip = IPv4Address(end_ip)
 
-        self.end_ip = end_ip
-        self._end_ip = IPv4Address(end_ip)
+            self.start_ip = self._start_ip.exploded
+            self.end_ip = self._end_ip.exploded
+        except (AddressValueError, NetmaskValueError):
+            raise ValueError(f"{start_ip} is not a valid IPv4 address")
 
         assert (
-                self._start_ip < self._end_ip
+            self._start_ip < self._end_ip
         ), "end ip address must be greater than start ip address"
 
         self.ip_range = range(int(self._start_ip), int(self._end_ip) + 1)
@@ -25,7 +30,9 @@ class IPv4AddressRange:
         return self.ip_range.index(int(_ip_address))
 
     def to_cidr(self):
-        return [i.exploded for i in summarize_address_range(self._start_ip, self._end_ip)]
+        return [
+            i.exploded for i in summarize_address_range(self._start_ip, self._end_ip)
+        ]
 
     def __contains__(self, ip_address):
         _ip_address = IPv4Address(ip_address)
@@ -45,6 +52,8 @@ class IPv4AddressRange:
 
     def __str__(self):
         return f"{self.start_ip} - {self.end_ip}"
+
+
 
 
 # class IPv4Generator:
