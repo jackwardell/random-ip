@@ -8,6 +8,15 @@ from ipaddress import NetmaskValueError
 from ipaddress import summarize_address_range
 
 
+class RangeError(Exception):
+    message = (
+        "ranges must be either a IPv4AddressRange, " "a IPv4Network (from ipaddress)"
+    )
+
+    def __init__(self):
+        super().__init__(self.message)
+
+
 class Ranges:
     """
 
@@ -63,7 +72,7 @@ class IPv4AddressRange:
             raise ValueError(f"{start_ip} is not a valid IPv4 address")
 
         assert (
-                self._start_ip < self._end_ip
+            self._start_ip < self._end_ip
         ), "end ip address must be greater than start ip address"
 
         self.ip_range = range(int(self._start_ip), int(self._end_ip) + 1)
@@ -102,46 +111,39 @@ class IPv4AddressRange:
 
 
 class IPv4Generator:
-    def __init__(self, ranges=None):
-        if ranges:
-            if isinstance(ranges, IPv4AddressRange):
-                self.ranges = [ranges.ip_range]
-            elif isinstance(ranges, IPv4Network):
-                assert ranges.network_address != ranges.broadcast_address, (
-                    "No difference in network address and broadcast address "
-                    "means there is no IP range and therefore "
-                    "no random generation can occur."
+    def __init__(self, included_ranges=None):
+        self.included_ranges = []
+        if included_ranges:
+            self._store_ranges(included_ranges)
+        else:
+            self.included_ranges = [range(0, 4294967295)]
+
+        self.ip_choices = Ranges.from_iterable(
+            [included_range for included_range in self.included_ranges]
+        )
+
+    def _store_ranges(self, ip_address_ranges):
+        for ip_address_range in ip_address_ranges:
+            if isinstance(ip_address_range, IPv4AddressRange):
+                self.included_ranges.append(ip_address_range.ip_range)
+            elif isinstance(ip_address_range, IPv4Network):
+                self.included_ranges.append(
+                    range(
+                        int(ip_address_range.network_address),
+                        int(ip_address_range.broadcast_address),
+                    )
                 )
-                self.ranges = [
-                    range(int(ranges.network_address), int(ranges.broadcast_address))
-                ]
-            elif isinstance(ranges, Iterable):
-                self.ranges = []
-                for range_ in ranges:
-                    if isinstance(range_, IPv4AddressRange):
-                        self.ranges.append(range_.ip_range)
-                    elif isinstance(range_, IPv4Network):
-                        self.ranges.append(
-                            range(
-                                int(range_.network_address),
-                                int(range_.broadcast_address),
-                            )
-                        )
-                    else:
-                        raise ValueError(
-                            "ranges must be either a IPv4AddressRange, "
-                            "a IPv4Network (from ipaddress)"
-                        )
+            elif isinstance(ip_address_range, tuple):
+                self.included_ranges.append(
+                    IPv4AddressRange(*ip_address_range).ip_range
+                )
             else:
                 raise ValueError(
-                    "ranges must be either a IPv4AddressRange, "
-                    "a IPv4Network (from ipaddress), "
-                    "or a iterable of either or both."
+                    "The key word argument ip_address_ranges must be a iterable "
+                    "with a length of at least 1. Items in the iterable must be "
+                    "a IPv4AddressRange, a IPv4Network (from ipaddress) or a "
+                    "tuple with start IP address and end IP address or a mixture."
                 )
-        else:
-            self.ranges = [range(0, 4294967295)]
-
-        self.ip_choices = Ranges.from_iterable([range_ for range_ in self.ranges])
 
     def __call__(self):
         return IPv4Address(random.choice(self.ip_choices)).exploded
