@@ -37,12 +37,6 @@ class ChainRange:
             key = self._sorted_boundaries[boundaries_index]
             return self.boundaries_and_ranges[key][index - key]
 
-    # def __iter__(self, *args, **kwargs):
-    #     return iter(self.chain)
-    #
-    # def __next__(self, *args, **kwargs):
-    #     return next(self.chain)
-
     def __contains__(self, item):
         for r in self.ranges:
             if item in r:
@@ -102,18 +96,18 @@ class IPv4AddressRange:
         return f"{self.start_ip} - {self.end_ip}"
 
 
-# class IPv4Generator:
-#     def __init__(self, ranges=None):
-#         if ranges:
-#             if isinstance(ranges, IPv4AddressRange):
-#                 self.ranges = ranges
-#             elif isinstance(ranges, IPv4Network)
-#
-#         self.ranges = ranges
-#         check_is_ipv4_address(start_ip)
-#         self.start_ip = start_ip
-#         self.start_ip_parts = tuple(int(i) for i in start_ip.split("."))
-#
-#         check_is_ipv4_address(end_ip)
-#         self.end_ip = end_ip
-#         self.end_ip_parts = tuple(int(i) for i in end_ip.split("."))
+class IPv4Generator:
+    def __init__(self, ranges=None):
+        if ranges:
+            if isinstance(ranges, IPv4AddressRange):
+                self.ranges = ranges
+            elif isinstance(ranges, IPv4Network)
+
+        self.ranges = ranges
+        check_is_ipv4_address(start_ip)
+        self.start_ip = start_ip
+        self.start_ip_parts = tuple(int(i) for i in start_ip.split("."))
+
+        check_is_ipv4_address(end_ip)
+        self.end_ip = end_ip
+        self.end_ip_parts = tuple(int(i) for i in end_ip.split("."))

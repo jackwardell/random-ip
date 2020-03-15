@@ -4,6 +4,7 @@ from ipaddress import AddressValueError
 from pytest import raises
 from iprandom.ip_v4 import ChainRange
 from itertools import chain
+from random import choice
 
 
 def test_ip_v4_address_range():
@@ -109,11 +110,14 @@ def test_chain_range():
     assert chain_range[9] == 9
     assert chain_range[9] == range1[9]
     assert chain_range[10] == 50
+    assert chain_range[-50] == 50
+    assert chain_range[-51] == 9
     assert chain_range[10] == range2[(10 - len(range1))]
     assert chain_range[20] == 60
     assert chain_range[20] == range2[(20 - len(range1))]
     assert chain_range[59] == 99
     assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[-1] == 99
 
     with raises(IndexError):
         chain_range[len(chain_range)]
@@ -170,3 +174,23 @@ def test_chain_range():
         chain_range[len(chain_range)]
 
     assert chain_range[len(chain_range) - 1] == 9
+
+    chain_range = ChainRange(range1, range2, range3)
+    assert len(chain_range) == len(range1) + len(range2) + len(range3)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[60] == 1000
+    assert chain_range[1059] == 1999
+    assert chain_range[-1] == 1999
+
+    assert choice(chain_range)
