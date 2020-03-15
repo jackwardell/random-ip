@@ -2,6 +2,54 @@ from ipaddress import AddressValueError
 from ipaddress import IPv4Address
 from ipaddress import NetmaskValueError
 from ipaddress import summarize_address_range
+from ipaddress import IPv4Network
+from itertools import chain
+from random import choice, randrange
+import bisect
+
+
+class ChainRange:
+    def __init__(self, *ranges):
+        if not ranges:
+            raise TypeError("__init__() missing at least 2 required ranges")
+        self.boundaries_and_ranges = {}
+        for range_ in ranges:
+            if not isinstance(range_, range):
+                raise ValueError("ChainRange only accepts range objects")
+            else:
+                last_value = max(self.boundaries_and_ranges.keys(), default=0)
+                self.boundaries_and_ranges[last_value + len(range_)] = range_
+        self._sorted_boundaries = sorted(self.boundaries_and_ranges.keys())
+
+        self.ranges = ranges
+        self.chain = chain(ranges)
+
+    def __len__(self):
+        return sum([len(r) for r in self.ranges])
+
+    def __getitem__(self, index):
+        if abs(index) > len(self):
+            raise IndexError("index out of range")
+        else:
+            if index < 0:
+                index = len(self) + index
+            boundaries_index = bisect.bisect(self._sorted_boundaries, index)
+            key = self._sorted_boundaries[boundaries_index]
+            return self.boundaries_and_ranges[key][index - key]
+
+    # def __iter__(self, *args, **kwargs):
+    #     return iter(self.chain)
+    #
+    # def __next__(self, *args, **kwargs):
+    #     return next(self.chain)
+
+    def __contains__(self, item):
+        for r in self.ranges:
+            if item in r:
+                return True
+            else:
+                continue
+        return False
 
 
 class IPv4AddressRange:
@@ -54,11 +102,12 @@ class IPv4AddressRange:
         return f"{self.start_ip} - {self.end_ip}"
 
 
-
-
 # class IPv4Generator:
 #     def __init__(self, ranges=None):
 #         if ranges:
+#             if isinstance(ranges, IPv4AddressRange):
+#                 self.ranges = ranges
+#             elif isinstance(ranges, IPv4Network)
 #
 #         self.ranges = ranges
 #         check_is_ipv4_address(start_ip)

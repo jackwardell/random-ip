@@ -2,6 +2,8 @@ from iprandom.ip_v4 import IPv4AddressRange
 from ipaddress import IPv4Address
 from ipaddress import AddressValueError
 from pytest import raises
+from iprandom.ip_v4 import ChainRange
+from itertools import chain
 
 
 def test_ip_v4_address_range():
@@ -88,3 +90,83 @@ def test_ip_v4_address_range():
     assert ip_address_range.end_ip == end_ip.exploded
     assert ip_address_range._start_ip == start_ip
     assert ip_address_range._end_ip == end_ip
+
+
+def test_chain_range():
+    range1, range2, range3 = range(0, 10), range(50, 100), range(1000, 2000)
+    with raises(TypeError):
+        chain_range = ChainRange()
+
+    chain_range = ChainRange(range1, range2)
+    assert chain_range.boundaries_and_ranges == {10: range1, 60: range2}
+    assert chain_range.ranges == (range1, range2)
+
+    assert len(chain_range) == len(range1) + len(range2)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 99
+
+    # change order
+    chain_range = ChainRange(range2, range1)
+    assert chain_range.boundaries_and_ranges == {50: range2, 60: range1}
+    assert chain_range.ranges == (range2, range1)
+
+    assert len(chain_range) == len(range2) + len(range1)
+    assert chain_range[0] == 50
+    assert chain_range[0] == range2[0]
+    assert chain_range[5] == 55
+    assert chain_range[5] == range2[5]
+    assert chain_range[9] == 59
+    assert chain_range[9] == range2[9]
+    assert chain_range[10] == 60
+    assert chain_range[20] == 70
+    assert chain_range[59] == 9
+    assert chain_range[59] == range1[(59 - len(range2))]
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 9
+
+    # assert list(chain_range) == list(range2) + list(range1)
+
+    for i in range1:
+        assert i in chain_range
+    for i in range2:
+        assert i in chain_range
+    for i in range(10, 50):
+        assert i not in chain_range
+
+    chain_range = ChainRange(range1, range1)
+    assert chain_range.boundaries_and_ranges == {10: range1, 20: range1}
+    assert chain_range.ranges == (range1, range1)
+
+    assert len(chain_range) == len(range1) + len(range1)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 0
+    assert chain_range[15] == 5
+    assert chain_range[19] == 9
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 9
