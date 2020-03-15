@@ -1,10 +1,12 @@
-from iprandom.ip_v4 import IPv4AddressRange
 from ipaddress import IPv4Address
-from ipaddress import AddressValueError
-from pytest import raises
-from iprandom.ip_v4 import ChainRange
-from itertools import chain
 from random import choice
+
+from pytest import raises
+
+from iprandom.ip_v4 import IPv4AddressRange
+from iprandom.ip_v4 import IPv4Generator
+from iprandom.ip_v4 import Ranges
+from ipaddress import IPv4Network
 
 
 def test_ip_v4_address_range():
@@ -96,11 +98,22 @@ def test_ip_v4_address_range():
 def test_chain_range():
     range1, range2, range3 = range(0, 10), range(50, 100), range(1000, 2000)
     with raises(TypeError):
-        chain_range = ChainRange()
+        chain_range = Ranges()
 
-    chain_range = ChainRange(range1, range2)
-    assert chain_range.boundaries_and_ranges == {10: range1, 60: range2}
-    assert chain_range.ranges == (range1, range2)
+    chain_range = Ranges(range1)
+    assert chain_range._boundaries_and_ranges == {10: range1}
+
+    assert len(chain_range) == len(range1)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[-1] == range1[-1]
+
+    chain_range = Ranges(range1, range2)
+    assert chain_range._boundaries_and_ranges == {10: range1, 60: range2}
 
     assert len(chain_range) == len(range1) + len(range2)
     assert chain_range[0] == 0
@@ -125,9 +138,9 @@ def test_chain_range():
     assert chain_range[len(chain_range) - 1] == 99
 
     # change order
-    chain_range = ChainRange(range2, range1)
-    assert chain_range.boundaries_and_ranges == {50: range2, 60: range1}
-    assert chain_range.ranges == (range2, range1)
+    chain_range = Ranges(range2, range1)
+    assert chain_range._boundaries_and_ranges == {50: range2, 60: range1}
+    # assert chain_range.ranges == (range2, range1)
 
     assert len(chain_range) == len(range2) + len(range1)
     assert chain_range[0] == 50
@@ -155,9 +168,9 @@ def test_chain_range():
     for i in range(10, 50):
         assert i not in chain_range
 
-    chain_range = ChainRange(range1, range1)
-    assert chain_range.boundaries_and_ranges == {10: range1, 20: range1}
-    assert chain_range.ranges == (range1, range1)
+    chain_range = Ranges(range1, range1)
+    assert chain_range._boundaries_and_ranges == {10: range1, 20: range1}
+    # assert chain_range.ranges == (range1, range1)
 
     assert len(chain_range) == len(range1) + len(range1)
     assert chain_range[0] == 0
@@ -175,7 +188,7 @@ def test_chain_range():
 
     assert chain_range[len(chain_range) - 1] == 9
 
-    chain_range = ChainRange(range1, range2, range3)
+    chain_range = Ranges(range1, range2, range3)
     assert len(chain_range) == len(range1) + len(range2) + len(range3)
     assert chain_range[0] == 0
     assert chain_range[0] == range1[0]
@@ -194,3 +207,107 @@ def test_chain_range():
     assert chain_range[-1] == 1999
 
     assert choice(chain_range)
+
+    iterable = [range1, range2, range3]
+    chain_range = Ranges.from_iterable(iterable)
+    assert chain_range
+    assert len(chain_range) == len(range1) + len(range2) + len(range3)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[60] == 1000
+    assert chain_range[1059] == 1999
+    assert chain_range[-1] == 1999
+
+    assert choice(chain_range)
+
+
+def test_ip_generator():
+    random_ip_generator = IPv4Generator()
+    random_ip = random_ip_generator()
+    assert random_ip
+    assert isinstance(random_ip, str)
+
+    random_ip_generator = IPv4Generator(ranges=[IPv4AddressRange("0.0.0.0", "0.0.0.4")])
+    random_ip = random_ip_generator()
+    assert random_ip in ("0.0.0.0", "0.0.0.1", "0.0.0.2", "0.0.0.3", "0.0.0.4")
+
+    random_ip_generator = IPv4Generator(ranges=[IPv4Network("10.0.0.0/8")])
+    random_ip_address = random_ip_generator()
+    assert random_ip_address.startswith("10.")
+
+    random_ip_generator = IPv4Generator(ranges=[IPv4Network("100.64.0.0/10")])
+    random_ip_address = random_ip_generator()
+    assert random_ip_address.startswith("100.64.")
+    assert random_ip_address.startswith("100.65.")
+    assert random_ip_address.startswith("100.66.")
+    assert random_ip_address.startswith("100.67.")
+    assert random_ip_address.startswith("100.68.")
+    assert random_ip_address.startswith("100.69.")
+    assert random_ip_address.startswith("100.70.")
+    assert random_ip_address.startswith("100.71.")
+    assert random_ip_address.startswith("100.72.")
+    assert random_ip_address.startswith("100.73.")
+    assert random_ip_address.startswith("100.74.")
+    assert random_ip_address.startswith("100.75.")
+    assert random_ip_address.startswith("100.76.")
+    assert random_ip_address.startswith("100.77.")
+    assert random_ip_address.startswith("100.78.")
+    assert random_ip_address.startswith("100.79.")
+    assert random_ip_address.startswith("100.80.")
+    assert random_ip_address.startswith("100.81.")
+    assert random_ip_address.startswith("100.82.")
+    assert random_ip_address.startswith("100.83.")
+    assert random_ip_address.startswith("100.84.")
+    assert random_ip_address.startswith("100.85.")
+    assert random_ip_address.startswith("100.86.")
+    assert random_ip_address.startswith("100.87.")
+    assert random_ip_address.startswith("100.88.")
+    assert random_ip_address.startswith("100.89.")
+    assert random_ip_address.startswith("100.90.")
+    assert random_ip_address.startswith("100.91.")
+    assert random_ip_address.startswith("100.92.")
+    assert random_ip_address.startswith("100.93.")
+    assert random_ip_address.startswith("100.94.")
+    assert random_ip_address.startswith("100.95.")
+    assert random_ip_address.startswith("100.96.")
+    assert random_ip_address.startswith("100.97.")
+    assert random_ip_address.startswith("100.98.")
+    assert random_ip_address.startswith("100.99.")
+    assert random_ip_address.startswith("100.100.")
+    assert random_ip_address.startswith("100.101.")
+    assert random_ip_address.startswith("100.102.")
+    assert random_ip_address.startswith("100.103.")
+    assert random_ip_address.startswith("100.104.")
+    assert random_ip_address.startswith("100.105.")
+    assert random_ip_address.startswith("100.106.")
+    assert random_ip_address.startswith("100.107.")
+    assert random_ip_address.startswith("100.108.")
+    assert random_ip_address.startswith("100.109.")
+    assert random_ip_address.startswith("100.110.")
+    assert random_ip_address.startswith("100.111.")
+    assert random_ip_address.startswith("100.112.")
+    assert random_ip_address.startswith("100.113.")
+    assert random_ip_address.startswith("100.114.")
+    assert random_ip_address.startswith("100.115.")
+    assert random_ip_address.startswith("100.116.")
+    assert random_ip_address.startswith("100.117.")
+    assert random_ip_address.startswith("100.118.")
+    assert random_ip_address.startswith("100.119.")
+    assert random_ip_address.startswith("100.120.")
+    assert random_ip_address.startswith("100.121.")
+    assert random_ip_address.startswith("100.122.")
+    assert random_ip_address.startswith("100.123.")
+    assert random_ip_address.startswith("100.124.")
+    assert random_ip_address.startswith("100.125.")
+    assert random_ip_address.startswith("100.126.")
+    assert random_ip_address.startswith("100.127.")
