@@ -59,3 +59,24 @@ def test_ip_v4_address_range():
         "IPv4AddressRange(start_ip_address=127.0.0.0, end_ip_address=255.255.255.0)"
     )
     assert str(ip_address_range) == "127.0.0.0 - 255.255.255.0"
+
+    ip_address_range = IPv4AddressRange("0.0.0.0", "0.0.0.4")
+    assert ip_address_range.count("0.0.0.0") == 1
+    assert ip_address_range.count("0.0.0.1") == 1
+    assert ip_address_range.count("0.0.0.2") == 1
+    assert ip_address_range.count("0.0.0.3") == 1
+    assert ip_address_range.count("0.0.0.4") == 1
+    assert ip_address_range.count("0.0.0.5") == 0
+
+    assert ip_address_range.index("0.0.0.0") == 0
+    assert ip_address_range.index("0.0.0.1") == 1
+    assert ip_address_range.index("0.0.0.2") == 2
+    assert ip_address_range.index("0.0.0.3") == 3
+    assert ip_address_range.index("0.0.0.4") == 4
+    with raises(ValueError):
+        ip_address_range.index("0.0.0.5")
+
+    assert ip_address_range.to_cidr() == ["0.0.0.0/30", "0.0.0.4/32"]
+
+    ip_address_range = IPv4AddressRange("0.0.0.0", "255.255.255.255")
+    assert ip_address_range.to_cidr() == ["0.0.0.0/0"]
