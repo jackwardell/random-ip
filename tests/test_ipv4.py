@@ -9,20 +9,6 @@ from iprandom.ip_v4 import Ranges
 from ipaddress import IPv4Network
 
 
-# def test_ipv4_address(i):
-#     ip_address = ipv4_address()
-#     assert ip_address
-#     assert isinstance(ip_address, str)
-#     assert 7 <= len(ip_address) <= 15
-#
-#     _split_ip_address = ip_address.split(".")
-#     assert isinstance(_split_ip_address, list)
-#     assert len(_split_ip_address) == 4
-#     for i in _split_ip_address:
-#         assert i.isdigit()
-#         assert 0 <= int(i) <= 255
-
-
 def test_ip_v4_address_range():
     start_ip, end_ip = "0.0.0.0", "255.255.255.255"
     start_ipv4, end_ipv4 = IPv4Address(start_ip), IPv4Address(end_ip)
@@ -30,7 +16,7 @@ def test_ip_v4_address_range():
     assert ip_address_range
     assert ip_address_range.start_ip == start_ip
     assert ip_address_range.end_ip == end_ip
-    assert ip_address_range.ip_range == range(int(start_ipv4), int(end_ipv4) + 1)
+    assert ip_address_range._ip_range == range(int(start_ipv4), int(end_ipv4) + 1)
 
     with raises(ValueError):
         IPv4AddressRange("asgdjka", "asdkas")
@@ -366,4 +352,6 @@ def test_ip_generator():
     random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("198.18.0.0/15")])
     random_ip_address = random_ip_generator()
     assert IPv4Address(random_ip_address) in IPv4Network("198.18.0.0/15")
-    assert random_ip_address.startswith("198.18") or random_ip_address.startswith("198.19.")
+    assert random_ip_address.startswith("198.18") or random_ip_address.startswith(
+        "198.19."
+    )

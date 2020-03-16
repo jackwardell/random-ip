@@ -1,23 +1,16 @@
 import bisect
 import random
-from collections import Iterable
 from ipaddress import AddressValueError
 from ipaddress import IPv4Address
 from ipaddress import IPv4Network
 from ipaddress import NetmaskValueError
 from ipaddress import summarize_address_range
+from collections import Sequence
+from collections import Container
+from ipaddress import _IPv4Constants
 
 
-class RangeError(Exception):
-    message = (
-        "ranges must be either a IPv4AddressRange, " "a IPv4Network (from ipaddress)"
-    )
-
-    def __init__(self):
-        super().__init__(self.message)
-
-
-class Ranges:
+class Ranges(Sequence, Container):
     """
 
     """
@@ -75,15 +68,15 @@ class IPv4AddressRange:
             self._start_ip < self._end_ip
         ), "end ip address must be greater than start ip address"
 
-        self.ip_range = range(int(self._start_ip), int(self._end_ip) + 1)
+        self._ip_range = range(int(self._start_ip), int(self._end_ip) + 1)
 
     def count(self, ip_address):
         _ip_address = IPv4Address(ip_address)
-        return self.ip_range.count(int(_ip_address))
+        return self._ip_range.count(int(_ip_address))
 
     def index(self, ip_address):
         _ip_address = IPv4Address(ip_address)
-        return self.ip_range.index(int(_ip_address))
+        return self._ip_range.index(int(_ip_address))
 
     def to_cidr(self):
         return [
@@ -92,16 +85,16 @@ class IPv4AddressRange:
 
     def __contains__(self, ip_address):
         _ip_address = IPv4Address(ip_address)
-        return int(_ip_address) in self.ip_range
+        return int(_ip_address) in self._ip_range
 
     def __eq__(self, ip_address_range):
         if not isinstance(ip_address_range, IPv4AddressRange):
             return False
         else:
-            return self.ip_range == ip_address_range.ip_range
+            return self._ip_range == ip_address_range._ip_range
 
     def __getitem__(self, item):
-        return self.ip_range[item]
+        return self._ip_range[item]
 
     def __repr__(self):
         return f"IPv4AddressRange(start_ip_address={self.start_ip}, end_ip_address={self.end_ip})"
@@ -125,7 +118,7 @@ class IPv4Generator:
     def _store_ranges(self, ip_address_ranges):
         for ip_address_range in ip_address_ranges:
             if isinstance(ip_address_range, IPv4AddressRange):
-                self.included_ranges.append(ip_address_range.ip_range)
+                self.included_ranges.append(ip_address_range._ip_range)
             elif isinstance(ip_address_range, IPv4Network):
                 self.included_ranges.append(
                     range(
@@ -135,11 +128,11 @@ class IPv4Generator:
                 )
             elif isinstance(ip_address_range, tuple):
                 self.included_ranges.append(
-                    IPv4AddressRange(*ip_address_range).ip_range
+                    IPv4AddressRange(*ip_address_range)._ip_range
                 )
             else:
                 raise ValueError(
-                    "The key word argument ip_address_ranges must be a iterable "
+                    "The keyword argument ip_address_ranges must be a iterable "
                     "with a length of at least 1. Items in the iterable must be "
                     "a IPv4AddressRange, a IPv4Network (from ipaddress) or a "
                     "tuple with start IP address and end IP address or a mixture."
