@@ -13,7 +13,7 @@ setup(
     author_email="jackwardell@me.com",
     url='http://github.com/jackwardell/iprandom',
     description="library for generating random ip addresses",
-    packages=['iprandom'],
+    packages=['iprandom.py'],
     python_requires=">=3.6",
     # install_requires=requirements,
 )

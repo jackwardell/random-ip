@@ -1,244 +1,357 @@
-from iprandom import ipv4_address
-from iprandom import ipv6_address
-from string import hexdigits
+from ipaddress import IPv4Address
+from random import choice
+
+from pytest import raises
+
+from iprandom import IPv4AddressRange
+from iprandom import IPv4Generator
+from iprandom import _Ranges
+from ipaddress import IPv4Network
 
 
-def test_ipv4_address():
-    ip_address = ipv4_address()
-    assert ip_address
-    assert isinstance(ip_address, str)
-    assert 7 <= len(ip_address) <= 15
+def test_ip_v4_address_range():
+    start_ip, end_ip = "0.0.0.0", "255.255.255.255"
+    start_ipv4, end_ipv4 = IPv4Address(start_ip), IPv4Address(end_ip)
+    ip_address_range = IPv4AddressRange(start_ip, end_ip)
+    assert ip_address_range
+    assert ip_address_range.start_ip == start_ip
+    assert ip_address_range.end_ip == end_ip
+    assert ip_address_range.int_ip_range == range(int(start_ipv4), int(end_ipv4) + 1)
 
-    _split_ip_address = ip_address.split(".")
-    assert isinstance(_split_ip_address, list)
-    assert len(_split_ip_address) == 4
-    for i in _split_ip_address:
-        assert i.isdigit()
-        assert 0 <= int(i) <= 255
+    with raises(ValueError):
+        IPv4AddressRange("asgdjka", "asdkas")
 
+    with raises(ValueError):
+        IPv4AddressRange("234234.4.324.2", "23423.423.4.2")
 
-def test_ipv4_address_private_network_not_allowed():
-    """
-    private network ip cidr
-    10.0.0.0/8      =  10.0.0.0–10.255.255.255
-    100.64.0.0/10   =  100.64.0.0–100.127.255.255
-    172.16.0.0/12   =  172.16.0.0–172.31.255.255
-    192.0.0.0/24    =  192.0.0.0–192.0.0.255
-    192.168.0.0/16  =  192.168.0.0–192.168.255.255
-    198.18.0.0/15   =  198.18.0.0–198.19.255.255
-    """
-    random_ip_address = ipv4_address(private_network_allowed=False)
-    assert random_ip_address
-    # 10.0.0.0/8
-    assert not random_ip_address.startswith("10.")
-    # 100.64.0.0/10
-    assert not random_ip_address.startswith("100.64.")
-    assert not random_ip_address.startswith("100.65.")
-    assert not random_ip_address.startswith("100.66.")
-    assert not random_ip_address.startswith("100.67.")
-    assert not random_ip_address.startswith("100.68.")
-    assert not random_ip_address.startswith("100.69.")
-    assert not random_ip_address.startswith("100.70.")
-    assert not random_ip_address.startswith("100.71.")
-    assert not random_ip_address.startswith("100.72.")
-    assert not random_ip_address.startswith("100.73.")
-    assert not random_ip_address.startswith("100.74.")
-    assert not random_ip_address.startswith("100.75.")
-    assert not random_ip_address.startswith("100.76.")
-    assert not random_ip_address.startswith("100.77.")
-    assert not random_ip_address.startswith("100.78.")
-    assert not random_ip_address.startswith("100.79.")
-    assert not random_ip_address.startswith("100.80.")
-    assert not random_ip_address.startswith("100.81.")
-    assert not random_ip_address.startswith("100.82.")
-    assert not random_ip_address.startswith("100.83.")
-    assert not random_ip_address.startswith("100.84.")
-    assert not random_ip_address.startswith("100.85.")
-    assert not random_ip_address.startswith("100.86.")
-    assert not random_ip_address.startswith("100.87.")
-    assert not random_ip_address.startswith("100.88.")
-    assert not random_ip_address.startswith("100.89.")
-    assert not random_ip_address.startswith("100.90.")
-    assert not random_ip_address.startswith("100.91.")
-    assert not random_ip_address.startswith("100.92.")
-    assert not random_ip_address.startswith("100.93.")
-    assert not random_ip_address.startswith("100.94.")
-    assert not random_ip_address.startswith("100.95.")
-    assert not random_ip_address.startswith("100.96.")
-    assert not random_ip_address.startswith("100.97.")
-    assert not random_ip_address.startswith("100.98.")
-    assert not random_ip_address.startswith("100.99.")
-    assert not random_ip_address.startswith("100.100.")
-    assert not random_ip_address.startswith("100.101.")
-    assert not random_ip_address.startswith("100.102.")
-    assert not random_ip_address.startswith("100.103.")
-    assert not random_ip_address.startswith("100.104.")
-    assert not random_ip_address.startswith("100.105.")
-    assert not random_ip_address.startswith("100.106.")
-    assert not random_ip_address.startswith("100.107.")
-    assert not random_ip_address.startswith("100.108.")
-    assert not random_ip_address.startswith("100.109.")
-    assert not random_ip_address.startswith("100.110.")
-    assert not random_ip_address.startswith("100.111.")
-    assert not random_ip_address.startswith("100.112.")
-    assert not random_ip_address.startswith("100.113.")
-    assert not random_ip_address.startswith("100.114.")
-    assert not random_ip_address.startswith("100.115.")
-    assert not random_ip_address.startswith("100.116.")
-    assert not random_ip_address.startswith("100.117.")
-    assert not random_ip_address.startswith("100.118.")
-    assert not random_ip_address.startswith("100.119.")
-    assert not random_ip_address.startswith("100.120.")
-    assert not random_ip_address.startswith("100.121.")
-    assert not random_ip_address.startswith("100.122.")
-    assert not random_ip_address.startswith("100.123.")
-    assert not random_ip_address.startswith("100.124.")
-    assert not random_ip_address.startswith("100.125.")
-    assert not random_ip_address.startswith("100.126.")
-    assert not random_ip_address.startswith("100.127.")
-    # 172.16.0.0/12
-    assert not random_ip_address.startswith("172.16.")
-    assert not random_ip_address.startswith("172.17.")
-    assert not random_ip_address.startswith("172.18.")
-    assert not random_ip_address.startswith("172.19.")
-    assert not random_ip_address.startswith("172.20.")
-    assert not random_ip_address.startswith("172.21.")
-    assert not random_ip_address.startswith("172.22.")
-    assert not random_ip_address.startswith("172.23.")
-    assert not random_ip_address.startswith("172.24.")
-    assert not random_ip_address.startswith("172.25.")
-    assert not random_ip_address.startswith("172.26.")
-    assert not random_ip_address.startswith("172.27.")
-    assert not random_ip_address.startswith("172.28.")
-    assert not random_ip_address.startswith("172.29.")
-    assert not random_ip_address.startswith("172.30.")
-    assert not random_ip_address.startswith("172.31.")
-    # 192.0.0.0/24
-    assert not random_ip_address.startswith("192.0.0.")
-    # 192.168.0.0/16
-    assert not random_ip_address.startswith("192.168.")
-    # 198.18.0.0/15
-    assert not random_ip_address.startswith("198.18.")
-    assert not random_ip_address.startswith("198.19.")
+    with raises(ValueError):
+        IPv4AddressRange("0.0.0", "155.6.6")
+
+    start_ip, end_ip = "255.255.255.255", "0.0.0.0"
+    with raises(AssertionError):
+        ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    start_ip, end_ip = "10.10.0.0", "10.0.0.0"
+    with raises(AssertionError):
+        ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    start_ip, end_ip = "10.10.10.0", "10.10.0.0"
+    with raises(AssertionError):
+        ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    start_ip, end_ip = "10.10.10.10", "10.10.10.0"
+    with raises(AssertionError):
+        ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    start_ip, end_ip = "0.0.0.0", "0.0.0.0"
+    with raises(AssertionError):
+        ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    ip_address_range = IPv4AddressRange("0.0.0.0", "255.255.255.255")
+    assert "1.2.3.4" in ip_address_range
+
+    ip_address_range = IPv4AddressRange("127.0.0.0", "255.255.255.0")
+    assert "1.2.3.4" not in ip_address_range
+    assert "127.0.0.0" in ip_address_range
+    assert "255.255.255.0" in ip_address_range
+    assert "255.255.255.1" not in ip_address_range
+
+    ip_address_range = IPv4AddressRange("127.0.0.0", "255.255.255.0")
+    assert ip_address_range != range(2130706432, 4294967040)
+    assert ip_address_range == IPv4AddressRange("127.0.0.0", "255.255.255.0")
+
+    assert repr(ip_address_range) == (
+        "IPv4AddressRange(start_ip_address=127.0.0.0, end_ip_address=255.255.255.0)"
+    )
+    assert str(ip_address_range) == "127.0.0.0 - 255.255.255.0"
+
+    ip_address_range = IPv4AddressRange("0.0.0.0", "0.0.0.4")
+    assert ip_address_range.count("0.0.0.0") == 1
+    assert ip_address_range.count("0.0.0.1") == 1
+    assert ip_address_range.count("0.0.0.2") == 1
+    assert ip_address_range.count("0.0.0.3") == 1
+    assert ip_address_range.count("0.0.0.4") == 1
+    assert ip_address_range.count("0.0.0.5") == 0
+
+    assert ip_address_range.index("0.0.0.0") == 0
+    assert ip_address_range.index("0.0.0.1") == 1
+    assert ip_address_range.index("0.0.0.2") == 2
+    assert ip_address_range.index("0.0.0.3") == 3
+    assert ip_address_range.index("0.0.0.4") == 4
+    with raises(ValueError):
+        ip_address_range.index("0.0.0.5")
+
+    assert ip_address_range.to_cidr() == ["0.0.0.0/30", "0.0.0.4/32"]
+
+    ip_address_range = IPv4AddressRange("0.0.0.0", "255.255.255.255")
+    assert ip_address_range.to_cidr() == ["0.0.0.0/0"]
+
+    start_ip, end_ip = IPv4Address("0.0.0.0"), IPv4Address("255.255.255.255")
+    ip_address_range = IPv4AddressRange(start_ip, end_ip)
+
+    assert ip_address_range.start_ip == start_ip.exploded
+    assert ip_address_range.end_ip == end_ip.exploded
+    assert ip_address_range._start_ip == start_ip
+    assert ip_address_range._end_ip == end_ip
 
 
-def test_ipv4_address_software_not_allowed():
-    """
-    software ip cidr
-    0.0.0.0/8 = 0.0.0.0–0.255.255.255
-    """
-    ip_address = ipv4_address(software_allowed=False)
-    assert ip_address
-    assert not ip_address.startswith("0.")
+def test_chain_range():
+    range1, range2, range3 = range(0, 10), range(50, 100), range(1000, 2000)
+    with raises(TypeError):
+        chain_range = _Ranges()
+
+    chain_range = _Ranges(range1)
+    assert chain_range._boundaries_and_ranges == {10: range1}
+
+    assert len(chain_range) == len(range1)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[-1] == range1[-1]
+
+    chain_range = _Ranges(range1, range2)
+    assert chain_range._boundaries_and_ranges == {10: range1, 60: range2}
+
+    assert len(chain_range) == len(range1) + len(range2)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[-50] == 50
+    assert chain_range[-51] == 9
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[-1] == 99
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 99
+
+    # change order
+    chain_range = _Ranges(range2, range1)
+    assert chain_range._boundaries_and_ranges == {50: range2, 60: range1}
+    # assert chain_range.ranges == (range2, range1)
+
+    assert len(chain_range) == len(range2) + len(range1)
+    assert chain_range[0] == 50
+    assert chain_range[0] == range2[0]
+    assert chain_range[5] == 55
+    assert chain_range[5] == range2[5]
+    assert chain_range[9] == 59
+    assert chain_range[9] == range2[9]
+    assert chain_range[10] == 60
+    assert chain_range[20] == 70
+    assert chain_range[59] == 9
+    assert chain_range[59] == range1[(59 - len(range2))]
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 9
+
+    # assert list(chain_range) == list(range2) + list(range1)
+
+    for i in range1:
+        assert i in chain_range
+    for i in range2:
+        assert i in chain_range
+    for i in range(10, 50):
+        assert i not in chain_range
+
+    chain_range = _Ranges(range1, range1)
+    assert chain_range._boundaries_and_ranges == {10: range1, 20: range1}
+    # assert chain_range.ranges == (range1, range1)
+
+    assert len(chain_range) == len(range1) + len(range1)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 0
+    assert chain_range[15] == 5
+    assert chain_range[19] == 9
+
+    with raises(IndexError):
+        chain_range[len(chain_range)]
+
+    assert chain_range[len(chain_range) - 1] == 9
+
+    chain_range = _Ranges(range1, range2, range3)
+    assert len(chain_range) == len(range1) + len(range2) + len(range3)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[60] == 1000
+    assert chain_range[1059] == 1999
+    assert chain_range[-1] == 1999
+
+    assert choice(chain_range)
+
+    iterable = [range1, range2, range3]
+    chain_range = _Ranges.from_iterable(iterable)
+    assert chain_range
+    assert len(chain_range) == len(range1) + len(range2) + len(range3)
+    assert chain_range[0] == 0
+    assert chain_range[0] == range1[0]
+    assert chain_range[5] == 5
+    assert chain_range[5] == range1[5]
+    assert chain_range[9] == 9
+    assert chain_range[9] == range1[9]
+    assert chain_range[10] == 50
+    assert chain_range[10] == range2[(10 - len(range1))]
+    assert chain_range[20] == 60
+    assert chain_range[20] == range2[(20 - len(range1))]
+    assert chain_range[59] == 99
+    assert chain_range[59] == range2[(59 - len(range1))]
+    assert chain_range[60] == 1000
+    assert chain_range[1059] == 1999
+    assert chain_range[-1] == 1999
+
+    assert choice(chain_range)
 
 
-def test_ipv4_address_host_not_allowed():
-    """
-    host ip cidr
-    127.0.0.0/8 = 127.0.0.0–127.255.255.255
-    """
-    ip_address = ipv4_address(host_allowed=False)
-    assert ip_address
-    assert not ip_address.startswith("127.")
+def test_ip_generator():
+    random_ip_generator = IPv4Generator()
+    random_ip = random_ip_generator()
+    assert random_ip
+    assert isinstance(random_ip, str)
 
+    random_ip_generator = IPv4Generator(
+        included_ranges=[IPv4AddressRange("0.0.0.0", "0.0.0.4")]
+    )
+    random_ip = random_ip_generator()
+    assert random_ip in ("0.0.0.0", "0.0.0.1", "0.0.0.2", "0.0.0.3", "0.0.0.4")
 
-def test_ipv4_address_subnet_not_allowed():
-    """
-    subnet ip cidr
-    169.254.0.0/16      =  169.254.0.0–169.254.255.255
-    255.255.255.255/32  =  255.255.255.255
-    """
-    ip_address = ipv4_address(subnet_allowed=False)
-    assert ip_address
-    # 169.254.0.0/16
-    assert not ip_address.startswith("169.254.")
-    # 255.255.255.255/32
-    assert not ip_address == "255.255.255.255"
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("10.0.0.0/8")])
+    random_ip_address = random_ip_generator()
+    assert random_ip_address.startswith("10.")
 
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("100.64.0.0/10")])
+    random_ip_address = random_ip_generator()
+    assert IPv4Address(random_ip_address) in IPv4Network("100.64.0.0/10")
+    assert (
+        random_ip_address.startswith("100.64.")
+        or random_ip_address.startswith("100.65.")
+        or random_ip_address.startswith("100.66.")
+        or random_ip_address.startswith("100.67.")
+        or random_ip_address.startswith("100.68.")
+        or random_ip_address.startswith("100.69.")
+        or random_ip_address.startswith("100.70.")
+        or random_ip_address.startswith("100.71.")
+        or random_ip_address.startswith("100.72.")
+        or random_ip_address.startswith("100.73.")
+        or random_ip_address.startswith("100.74.")
+        or random_ip_address.startswith("100.75.")
+        or random_ip_address.startswith("100.76.")
+        or random_ip_address.startswith("100.77.")
+        or random_ip_address.startswith("100.78.")
+        or random_ip_address.startswith("100.79.")
+        or random_ip_address.startswith("100.80.")
+        or random_ip_address.startswith("100.81.")
+        or random_ip_address.startswith("100.82.")
+        or random_ip_address.startswith("100.83.")
+        or random_ip_address.startswith("100.84.")
+        or random_ip_address.startswith("100.85.")
+        or random_ip_address.startswith("100.86.")
+        or random_ip_address.startswith("100.87.")
+        or random_ip_address.startswith("100.88.")
+        or random_ip_address.startswith("100.89.")
+        or random_ip_address.startswith("100.90.")
+        or random_ip_address.startswith("100.91.")
+        or random_ip_address.startswith("100.92.")
+        or random_ip_address.startswith("100.93.")
+        or random_ip_address.startswith("100.94.")
+        or random_ip_address.startswith("100.95.")
+        or random_ip_address.startswith("100.96.")
+        or random_ip_address.startswith("100.97.")
+        or random_ip_address.startswith("100.98.")
+        or random_ip_address.startswith("100.99.")
+        or random_ip_address.startswith("100.100.")
+        or random_ip_address.startswith("100.101.")
+        or random_ip_address.startswith("100.102.")
+        or random_ip_address.startswith("100.103.")
+        or random_ip_address.startswith("100.104.")
+        or random_ip_address.startswith("100.105.")
+        or random_ip_address.startswith("100.106.")
+        or random_ip_address.startswith("100.107.")
+        or random_ip_address.startswith("100.108.")
+        or random_ip_address.startswith("100.109.")
+        or random_ip_address.startswith("100.110.")
+        or random_ip_address.startswith("100.111.")
+        or random_ip_address.startswith("100.112.")
+        or random_ip_address.startswith("100.113.")
+        or random_ip_address.startswith("100.114.")
+        or random_ip_address.startswith("100.115.")
+        or random_ip_address.startswith("100.116.")
+        or random_ip_address.startswith("100.117.")
+        or random_ip_address.startswith("100.118.")
+        or random_ip_address.startswith("100.119.")
+        or random_ip_address.startswith("100.120.")
+        or random_ip_address.startswith("100.121.")
+        or random_ip_address.startswith("100.122.")
+        or random_ip_address.startswith("100.123.")
+        or random_ip_address.startswith("100.124.")
+        or random_ip_address.startswith("100.125.")
+        or random_ip_address.startswith("100.126.")
+        or random_ip_address.startswith("100.127.")
+    )
 
-def test_ipv4_address_documentation_not_allowed():
-    """
-    192.0.2.0/24     =  192.0.2.0–192.0.2.255
-    198.51.100.0/24  =  198.51.100.0–198.51.100.255
-    203.0.113.0/24   =  203.0.113.0–203.0.113.255
-    """
-    ip_address = ipv4_address(documentation_allowed=False)
-    assert ip_address
-    # 192.0.2.0/24
-    assert not ip_address.startswith("192.0.2.")
-    # 198.51.100.0/24
-    assert not ip_address.startswith("198.51.100.")
-    # 203.0.113.0/24
-    assert not ip_address.startswith("203.0.113.")
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("172.16.0.0/12")])
+    random_ip_address = random_ip_generator()
+    assert IPv4Address(random_ip_address) in IPv4Network("172.16.0.0/12")
+    assert (
+        random_ip_address.startswith("172.16.")
+        or random_ip_address.startswith("172.17.")
+        or random_ip_address.startswith("172.18.")
+        or random_ip_address.startswith("172.19.")
+        or random_ip_address.startswith("172.20.")
+        or random_ip_address.startswith("172.21.")
+        or random_ip_address.startswith("172.22.")
+        or random_ip_address.startswith("172.23.")
+        or random_ip_address.startswith("172.24.")
+        or random_ip_address.startswith("172.25.")
+        or random_ip_address.startswith("172.26.")
+        or random_ip_address.startswith("172.27.")
+        or random_ip_address.startswith("172.28.")
+        or random_ip_address.startswith("172.29.")
+        or random_ip_address.startswith("172.30.")
+        or random_ip_address.startswith("172.31.")
+    )
 
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("192.0.0.0/24")])
+    random_ip_address = random_ip_generator()
+    assert IPv4Address(random_ip_address) in IPv4Network("192.0.0.0/24")
+    assert random_ip_address.startswith("192.0.0.")
 
-def test_ipv4_address_reserved_internet_not_allowed():
-    """
-    192.88.99.0/24  =  192.88.99.0–192.88.99.255
-    224.0.0.0/4     =  224.0.0.0–239.255.255.255
-    240.0.0.0/4	    =  240.0.0.0–255.255.255.254
-    """
-    ip_address = ipv4_address(reserved_internet_allowed=False)
-    assert ip_address
-    # 192.88.99.0/24
-    assert not ip_address.startswith("192.88.99.")
-    # 224.0.0.0/4
-    assert not ip_address.startswith("224.")
-    assert not ip_address.startswith("225.")
-    assert not ip_address.startswith("226.")
-    assert not ip_address.startswith("227.")
-    assert not ip_address.startswith("228.")
-    assert not ip_address.startswith("229.")
-    assert not ip_address.startswith("230.")
-    assert not ip_address.startswith("231.")
-    assert not ip_address.startswith("232.")
-    assert not ip_address.startswith("233.")
-    assert not ip_address.startswith("234.")
-    assert not ip_address.startswith("235.")
-    assert not ip_address.startswith("236.")
-    assert not ip_address.startswith("237.")
-    assert not ip_address.startswith("238.")
-    assert not ip_address.startswith("239.")
-    # 240.0.0.0/4
-    assert not ip_address.startswith("240.")
-    assert not ip_address.startswith("241.")
-    assert not ip_address.startswith("242.")
-    assert not ip_address.startswith("243.")
-    assert not ip_address.startswith("244.")
-    assert not ip_address.startswith("245.")
-    assert not ip_address.startswith("246.")
-    assert not ip_address.startswith("247.")
-    assert not ip_address.startswith("248.")
-    assert not ip_address.startswith("249.")
-    assert not ip_address.startswith("250.")
-    assert not ip_address.startswith("251.")
-    assert not ip_address.startswith("252.")
-    assert not ip_address.startswith("253.")
-    assert not ip_address.startswith("254.")
-    assert not all([ip_address.startswith("255."), ip_address.endswith(".255")])
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("192.168.0.0/16")])
+    random_ip_address = random_ip_generator()
+    assert IPv4Address(random_ip_address) in IPv4Network("192.168.0.0/16")
+    assert random_ip_address.startswith("192.168.")
 
-
-# def test_ipv4_address_100000_times():
-#     for i in range(1000000):
-#         test_ipv4_address()
-#         test_ipv4_address_private_network_not_allowed()
-#         test_ipv4_address_software_not_allowed()
-#         test_ipv4_address_host_not_allowed()
-#         test_ipv4_address_subnet_not_allowed()
-#         test_ipv4_address_documentation_not_allowed()
-#         test_ipv4_address_reserved_internet_not_allowed()
-
-
-def test_ipv6_address():
-    ip_address = ipv6_address()
-    assert ip_address
-    assert isinstance(ip_address, str)
-    assert len(ip_address) == 39
-
-    split_ip_address = ip_address.split(":")
-    assert isinstance(split_ip_address, list)
-    assert len(split_ip_address) == 8
-    for i in split_ip_address:
-        assert str(int(i, 16)).isdigit()
-        assert all([j in hexdigits for j in i])
-        assert 0 < int(i, 16) < int("ffff", 16)
+    random_ip_generator = IPv4Generator(included_ranges=[IPv4Network("198.18.0.0/15")])
+    random_ip_address = random_ip_generator()
+    assert IPv4Address(random_ip_address) in IPv4Network("198.18.0.0/15")
+    assert random_ip_address.startswith("198.18") or random_ip_address.startswith(
+        "198.19."
+    )
